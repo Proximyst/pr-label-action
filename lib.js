@@ -12,7 +12,7 @@ const {execSync} = require("child_process");
  * @return {Promise<void>}
  */
 async function runFromPRLabels({
-  prNumber = (() => github.context.eventName === 'issue_comment'
+  prNumber = (() => github.context.eventName === 'issue_label'
     ? github.context.payload.issue.number
     : github.context.payload.pull_request.number)(),
   octokit = github.getOctokit(core.getInput("repo-token", {required: true})),
@@ -32,7 +32,7 @@ async function runFromPRLabels({
   // Labels on the PR itself
   const {
     data: {labels},
-  } = github.context.eventName === 'issue_comment'
+  } = github.context.eventName === 'issue_label'
       ? await octokit.issues.get({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
