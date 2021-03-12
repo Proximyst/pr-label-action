@@ -1,6 +1,6 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
-const { execSync } = require("child_process");
+const {execSync} = require("child_process");
 
 /**
  * @param {number} prNumber
@@ -12,9 +12,11 @@ const { execSync } = require("child_process");
  * @return {Promise<void>}
  */
 async function runFromPRLabels({
-  prNumber = ((github.context.payload || {}).pull_request || {}).number,
-  octokit = github.getOctokit(core.getInput("repo-token", { required: true })),
-  items = JSON.parse(core.getInput("items", { required: true })),
+  prNumber = (() => github.context.eventName === 'issue_comment'
+    ? github.context.payload.issue.number
+    : github.context.payload.pull_request.number)(),
+  octokit = github.getOctokit(core.getInput("repo-token", {required: true})),
+  items = JSON.parse(core.getInput("items", {required: true})),
   labelPrefix = core.getInput("label-prefix") || "",
   runPrefix = core.getInput("run-prefix") || "",
   caseSensitive = core.getInput("case-sensitive"),
@@ -29,18 +31,24 @@ async function runFromPRLabels({
 
   // Labels on the PR itself
   const {
-    data: { labels },
-  } = await octokit.pulls.get({
-    owner: github.context.repo.owner,
-    repo: github.context.repo.repo,
-    pull_number: prNumber,
-  });
+    data: {labels},
+  } = github.context.eventName === 'issue_comment'
+      ? await octokit.issues.get({
+        owner: github.context.repo.owner,
+        repo: github.context.repo.repo,
+        issue_number: prNumber,
+      })
+      : await octokit.pulls.get({
+        owner: github.context.repo.owner,
+        repo: github.context.repo.repo,
+        pull_number: prNumber,
+      });
 
   // Label names on the PR
   const prLabels = labels.map((label) => label.name).map(caseTransform);
 
   // Preserve order of items defined in config
-  for (const { label, run } of items) {
+  for (const {label, run} of items) {
     if (!prLabels.includes(caseTransform(`${labelPrefix} ${label}`))) continue;
 
     core.info(`Running ${run} for label ${label}`);
@@ -48,4 +56,4 @@ async function runFromPRLabels({
   }
 }
 
-module.exports = { runFromPRLabels };
+module.exports = {runFromPRLabels};
