@@ -12,9 +12,12 @@ const {execSync} = require("child_process");
  * @return {Promise<void>}
  */
 async function runFromPRLabels({
-  prNumber = (() => github.context.eventName === 'issue_label'
-    ? github.context.payload.issue.number
-    : github.context.payload.pull_request.number)(),
+  prNumber = (() => {
+    core.info(github.context.eventName);
+    return github.context.eventName === 'issue_label'
+      ? github.context.payload.issue.number
+      : github.context.payload.pull_request.number;
+  })(),
   octokit = github.getOctokit(core.getInput("repo-token", {required: true})),
   items = JSON.parse(core.getInput("items", {required: true})),
   labelPrefix = core.getInput("label-prefix") || "",
