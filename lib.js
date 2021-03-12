@@ -13,8 +13,7 @@ const {execSync} = require("child_process");
  */
 async function runFromPRLabels({
   prNumber = (() => {
-    core.info(github.context.eventName);
-    return github.context.eventName === 'issue_label'
+    return github.context.eventName === 'issues'
       ? github.context.payload.issue.number
       : github.context.payload.pull_request.number;
   })(),
@@ -35,7 +34,7 @@ async function runFromPRLabels({
   // Labels on the PR itself
   const {
     data: {labels},
-  } = github.context.eventName === 'issue_label'
+  } = github.context.eventName === 'issues'
       ? await octokit.issues.get({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
