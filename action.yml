@@ -15,16 +15,6 @@ inputs:
       Can repeat labels.
     required: true
     default: "[]"
-  label-prefix:
-    description: |
-      Treats each "label" as if it were prefixed by this string with this string and then a space.
-      In other words, the label on the PR should equal this string concatenated with a space and one of the provided item labels.
-    required: false
-    default: ""
-  run-prefix:
-    description: Will prefix all "run" commands with this string and then a space.
-    required: false
-    default: ""
   case-sensitive:
     description: Whether to treat labels in a case-sensitive manner
     required: false

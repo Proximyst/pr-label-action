@@ -19,8 +19,6 @@ async function runFromPRLabels({
   })(),
   octokit = github.getOctokit(core.getInput("repo-token", {required: true})),
   items = JSON.parse(core.getInput("items", {required: true})),
-  labelPrefix = core.getInput("label-prefix") || "",
-  runPrefix = core.getInput("run-prefix") || "",
   caseSensitive = core.getInput("case-sensitive"),
 } = {}) {
   if (prNumber == null) {
@@ -51,10 +49,10 @@ async function runFromPRLabels({
 
   // Preserve order of items defined in config
   for (const {label, run} of items) {
-    if (!prLabels.includes(caseTransform(`${labelPrefix}${label}`))) continue;
+    if (!prLabels.includes(caseTransform(`${label}`))) continue;
 
     core.info(`Running ${run} for label ${label}`);
-    core.info(execSync(`${runPrefix}${run}`).toString());
+    core.info(execSync(`${run}`).toString());
   }
 }
 
